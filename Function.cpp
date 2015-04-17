@@ -1,0 +1,17 @@
+
+#include "Domain.h"
+
+void Function::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< std::string > & ts, Domain & d ) {
+	Lifted::PDDLPrint( s, indent, ts, d );
+	if ( returnType >= 0 ) s << " - " << d.types[returnType]->getName();
+}
+
+void Function::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) {
+	Lifted::parse( f, ts, d );
+	
+	f.next();
+	if ( f.getChar() == '-' ) {
+		f.assert( "-" );
+		returnType = d.types.index( f.getToken( d.types ) );
+	}
+}
