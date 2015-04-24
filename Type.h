@@ -102,6 +102,13 @@ public:
 
 		return std::make_pair( "", index );
 	}
+
+	unsigned noObjects() {
+		unsigned total = objects.size() + constants.size();
+		for ( unsigned i = 0; i < subtypes.size(); ++i )
+			total += subtypes[i]->noObjects();
+		return total;
+	}
 };
 
 inline std::ostream & operator<<( std::ostream & stream, const Type * t ) {
