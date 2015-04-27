@@ -347,7 +347,7 @@ public:
 		return pred;
 	}
 
-	// Create a predicate with the given name and parameter types
+	// Create a function with the given name and parameter types
 	Lifted * createFunction( const std::string & name, int type, const StringVec & params = StringVec() ) {
 		Function * func = new Function( name, type );
 		for ( unsigned i = 0; i < params.size(); ++i )
@@ -377,7 +377,7 @@ public:
 		else action->pre = cond->copy( *this );
 	}
 
-	// Create an action with the given name and parameter types
+	// Add a precondition to the action with name "act"
 	void addPre( bool neg, const std::string & act, const std::string & pred, const IntVec & params = IntVec() ) {
 		Action * action = actions.get( act );
 		if ( action->pre == 0 ) action->pre = new And;
@@ -386,7 +386,7 @@ public:
 		else a->add( ground( pred, params ) );
 	}
 
-	// Create an action with the given name and parameter types
+	// Add an "OR" precondition to the action with name "act"
 	void addOrPre( const std::string & act, const std::string & pred1, const std::string & pred2,
 	               const IntVec & params1 = IntVec(), const IntVec & params2 = IntVec() ) {
 		Or * o = new Or;
@@ -409,13 +409,21 @@ public:
 		else if ( cond ) action->eff = cond->copy( *this );
 	}
 
-	// Create an action with the given name and parameter types
+	// Add an effect to the action with name "act"
 	void addEff( bool neg, const std::string & act, const std::string & pred, const IntVec & params = IntVec() ) {
 		Action * action = actions.get( act );
 		if ( action->eff == 0 ) action->eff = new And;
 		And * a = dynamic_cast< And * >( action->eff );
 		if ( neg ) a->add( new Not( ground( pred, params ) ) );
 		else a->add( ground( pred, params ) );
+	}
+
+	// Add a cost to the action with name "act"
+	void addCost( const std::string & act, int cost ) {
+		Action * action = actions.get( act );
+		if ( action->eff == 0 ) action->eff = new And;
+		And * a = dynamic_cast< And * >( action->eff );
+		a->add( new Increase( cost ) );
 	}
 
 	// Create a ground condition with the given name
@@ -451,6 +459,7 @@ public:
 		return 0;
 	}
 
+	// return the index of a constant for a given type
 	int constantIndex( const std::string & name, const std::string & type ) {
 		return types.get( type )->parseConstant( name ).second;
 	}
