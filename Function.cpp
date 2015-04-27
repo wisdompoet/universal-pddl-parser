@@ -12,6 +12,10 @@ void Function::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & 
 	f.next();
 	if ( f.getChar() == '-' ) {
 		f.assert( "-" );
-		returnType = d.types.index( f.getToken( d.types ) );
+		std::string s = f.getToken();
+		if ( s != "NUMBER" ) {
+			f.c -= s.size();
+			returnType = d.types.index( f.getToken( d.types ) );
+		}
 	}
 }

@@ -6,6 +6,7 @@ Condition * createCondition( Filereader & f, Domain & d ) {
 
 	if ( s == "AND" ) return new And;
 	if ( s == "FORALL" ) return new Forall;
+	if ( s == "INCREASE" ) return new Increase;
 	if ( s == "NOT" ) return new Not;
 	if ( s == "OR" ) return new Or;
 	if ( s == "WHEN" ) return new When;

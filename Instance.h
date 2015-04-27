@@ -121,14 +121,20 @@ public:
 			std::cout << "  " << goal[i];
 	}
 
-	// for the moment only parse total-time
+	// for the moment only parse total-cost/total-time
 	void parseMetric( Filereader & f ) {
+		if ( !d.temp && !d.costs ) {
+			std::cerr << "METRIC only defined for temporal actions or actions with costs!\n";
+			std::exit( 1 );
+		}
+
 		metric = true;
 
 		f.next();
 		f.assert( "MINIMIZE" );
 		f.assert( "(" );
-		f.assert( "TOTAL-TIME" );
+		if ( d.temp ) f.assert( "TOTAL-TIME" );
+		else f.assert( "TOTAL-COST" );
 		f.assert( ")" );
 		f.assert( ")" );
 	}
@@ -209,8 +215,12 @@ public:
 		stream << "\t)\n";
 		stream << ")\n";
 
-		if ( metric )
-			stream << "( :METRIC MINIMIZE ( TOTAL-TIME ) )\n";
+		if ( metric ) {
+			stream << "( :METRIC MINIMIZE ( TOTAL-";
+			if ( d.temp ) stream << "TIME";
+			else stream << "COST";
+			stream << " ) )\n";
+		}
 
 		stream << ")\n";
 	}

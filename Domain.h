@@ -6,8 +6,9 @@
 #include "TemporalAction.h"
 #include "And.h"
 #include "Forall.h"
-#include "GroundFunc.h"
 #include "Function.h"
+#include "GroundFunc.h"
+#include "Increase.h"
 #include "NetworkNode.h"
 #include "Not.h"
 #include "Or.h"
@@ -459,6 +460,7 @@ public:
 		stream << "( DEFINE ( DOMAIN " << name << " )\n";
 		stream << "( :REQUIREMENTS";
 		if ( strips ) stream << " :STRIPS";
+		if ( costs ) stream << " :ACTION-COSTS";
 		if ( adl ) stream << " :ADL";
 		if ( condeffects ) stream << " :CONDITIONAL-EFFECTS";
 		if ( typed ) stream << " :TYPING";

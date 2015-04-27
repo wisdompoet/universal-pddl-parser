@@ -8,6 +8,7 @@ public:
 	{
 		TEST_CASE( logisticsTest );
 		TEST_CASE( scheduleTest );
+		TEST_CASE( elevatorTest );
 		TEST_CASE( temporalTest );
 		TEST_CASE( multiagentTest );
 	}
@@ -38,6 +39,14 @@ public:
 
 		checkEqual( dom, "tests/Sched_dom.pddl" );
 		checkEqual( ins, "tests/Sched_ins.pddl" );
+	}
+
+	void elevatorTest() {
+		Domain dom( "domains/Elev_dom.pddl" );
+		Instance ins( dom, "domains/Elev_ins.pddl" );
+
+		checkEqual( dom, "tests/Elev_dom.pddl" );
+		checkEqual( ins, "tests/Elev_ins.pddl" );
 	}
 
 	void temporalTest() {
