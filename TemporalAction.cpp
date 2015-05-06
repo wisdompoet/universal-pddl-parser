@@ -134,13 +134,12 @@ void TemporalAction::parse( Filereader & f, TokenStruct< std::string > & ts, Dom
 	f.assert( ":" );
 	std::string s = f.getToken();
 	if ( s == "CONDITION" ) {
+		pre = new And;
+		pre_o = new And;
+		pre_e = new And;
 		f.next();
 		f.assert( "(" );
 		if ( f.getChar() != ')' ) {
-			pre = new And;
-			pre_o = new And;
-			pre_e = new And;
-
 			s = f.getToken();
 			if ( s == "AND" ) {
 				for ( f.next(); f.getChar() != ')'; f.next() ) {
