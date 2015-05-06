@@ -16,8 +16,8 @@ public:
 	Increase( int val = 1 )
 		: value( val ), ground( 0 ) {}
 
-	Increase( Function * f )
-		: value( 0 ), ground( new Ground( f ) ) {}
+	Increase( Function * f, const IntVec & p = IntVec() )
+		: value( 0 ), ground( new Ground( f, p ) ) {}
 
 	Increase( const Increase * i, Domain & d );
 

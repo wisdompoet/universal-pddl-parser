@@ -418,12 +418,20 @@ public:
 		else a->add( ground( pred, params ) );
 	}
 
-	// Add a cost to the action with name "act"
+	// Add a cost to the action with name "act", in the form of an integer
 	void addCost( const std::string & act, int cost ) {
 		Action * action = actions.get( act );
 		if ( action->eff == 0 ) action->eff = new And;
 		And * a = dynamic_cast< And * >( action->eff );
 		a->add( new Increase( cost ) );
+	}
+
+	// Add a cost to the action with name "act", in the form of a function
+	void addCost( const std::string & act, const std::string & func, const IntVec & params = IntVec() ) {
+		Action * action = actions.get( act );
+		if ( action->eff == 0 ) action->eff = new And;
+		And * a = dynamic_cast< And * >( action->eff );
+		a->add( new Increase( funcs.get( func ) ) );
 	}
 
 	// Create a ground condition with the given name
