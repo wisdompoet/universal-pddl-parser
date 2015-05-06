@@ -431,7 +431,7 @@ public:
 		Action * action = actions.get( act );
 		if ( action->eff == 0 ) action->eff = new And;
 		And * a = dynamic_cast< And * >( action->eff );
-		a->add( new Increase( funcs.get( func ) ) );
+		a->add( new Increase( funcs.get( func ), params ) );
 	}
 
 	// Create a ground condition with the given name
