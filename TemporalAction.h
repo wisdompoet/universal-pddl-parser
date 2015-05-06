@@ -49,27 +49,28 @@ public:
 		s << " )";
 	}
 
-	double evaluate() { return 1; }
-
-	double evaluate( Instance & ins, StringVec & par ) {
+	double compute( double x, double y ) {
 		double res = 0;
-		double x = left->evaluate( ins, par );
-		double y = right->evaluate( ins, par );
 		switch( op ) {
 		case '+': res = x + y; break;
 		case '-': res = x - y; break;
 		case '*': res = x * y; break;
-		case '/': res = x / y; break;
+		case '/': res = ( y == 0 ? 0 : x / y ); break;
 		}
 		return res;
 	}
 
+	double evaluate() {
+		return compute( left->evaluate(), right->evaluate() );
+	}
+
+	double evaluate( Instance & ins, StringVec & par ) {
+		return compute( left->evaluate( ins, par ), right->evaluate( ins, par ) );
+	}
+
 	IntSet params() {
-//		IntSet res;
 		IntSet lpars = left->params();
 		IntSet rpars = right->params();
-//		std::set_union( lpars.begin(), lpars.end(), rpars.begin(), rpars.end(), res.begin() );
-//		return res;
 		lpars.insert( rpars.begin(), rpars.end() );
 		return lpars;
 	}
