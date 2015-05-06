@@ -4,6 +4,7 @@
 Condition * createCondition( Filereader & f, Domain & d ) {
 	std::string s = f.getToken();
 
+	if ( s == "=" ) return new Equals;
 	if ( s == "AND" ) return new And;
 	if ( s == "FORALL" ) return new Forall;
 	if ( s == "INCREASE" ) return new Increase;

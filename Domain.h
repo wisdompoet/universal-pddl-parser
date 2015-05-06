@@ -5,6 +5,7 @@
 #include "AgentAction.h"
 #include "TemporalAction.h"
 #include "And.h"
+#include "Equals.h"
 #include "Forall.h"
 #include "Function.h"
 #include "GroundFunc.h"
@@ -31,6 +32,7 @@ public:
 
 	std::string name;                   // name of domain
 
+	bool equality;                      // whether domain supports equality
 	bool strips, adl, condeffects;      // whether domain is STRIPS, ADL and/or has conditional effects
 	bool typed, cons, costs, temp;      // whether domain is typed, has constants, has costs and/or is temporal
 	bool multiagent, unfact, fact, net; // whether domain is multiagent and unfactored/factored/networked
@@ -47,12 +49,12 @@ public:
 //	PairSetVec predActions;             // actions with effect on predicate
 
 	Domain()
-		: strips( false ), adl( false ), condeffects( false )
+		: equality( false ), strips( false ), adl( false ), condeffects( false )
 		, typed( false ), cons( false ), costs( false ), temp( false )
 		, multiagent( false ), unfact( false ), fact( false ), net( false ) {}
 
 	Domain( const std::string & s )
-		: strips( false ), adl( false ), condeffects( false )
+		: equality( false ), strips( false ), adl( false ), condeffects( false )
 		, typed( false ), cons( false ), costs( false ), temp( false )
 		, multiagent( false ), unfact( false ), fact( false ), net( false ) {
 
@@ -114,9 +116,7 @@ public:
 			else if ( s == "CONDITIONAL-EFFECTS" ) condeffects = true;
 			else if ( s == "TYPING" ) typed = true;
 			else if ( s == "ACTION-COSTS" ) costs = true;
-			else if ( s == "EQUALITY" ) {
-				std::cout << "Currently supports :EQUALITY only for functions\n";
-			}
+			else if ( s == "EQUALITY" ) equality = true;
 			else if ( s == "DURATIVE-ACTIONS" ) temp = true;
 			else if ( s == "MULTI-AGENT" ) multiagent = true;
 			else if ( s == "UNFACTORED-PRIVACY" ) unfact = true;
@@ -468,6 +468,7 @@ public:
 	void PDDLPrint( std::ostream & stream ) {
 		stream << "( DEFINE ( DOMAIN " << name << " )\n";
 		stream << "( :REQUIREMENTS";
+		if ( equality ) stream << " :EQUALITY";
 		if ( strips ) stream << " :STRIPS";
 		if ( costs ) stream << " :ACTION-COSTS";
 		if ( adl ) stream << " :ADL";

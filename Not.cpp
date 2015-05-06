@@ -14,9 +14,11 @@ void Not::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) {
 
 	std::string s = f.getToken();
 	int i = d.preds.index( s );
-	if ( i < 0 ) f.tokenExit( s );
 
-	cond = new Ground( d.preds[i] );
+	if ( s == "=" ) cond = new Equals;
+	else if ( i < 0 ) f.tokenExit( s );
+	else cond = new Ground( d.preds[i] );
+
 	cond->parse( f, ts, d );
 
 	f.next();

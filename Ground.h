@@ -13,6 +13,9 @@ public:
 	Ground()
 		: ParamCond(), lifted( 0 ) {}
 
+	Ground( const std::string s, const IntVec & p = IntVec() )
+		: ParamCond( s, p ), lifted( 0 ) {}
+
 	Ground( Lifted * l, const IntVec & p = IntVec() )
 		: ParamCond( l->name, p ), lifted( l ) {}
 
