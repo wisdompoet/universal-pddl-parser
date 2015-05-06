@@ -16,6 +16,7 @@ public:
 	virtual void PDDLPrint( std::ostream & s, const TokenStruct< std::string > & ts, Domain & d ) = 0;
 	virtual double evaluate() = 0;
 	virtual double evaluate( Instance & ins, StringVec & par ) = 0;
+	virtual IntSet params() = 0;
 
 };
 
@@ -63,6 +64,16 @@ public:
 		return res;
 	}
 
+	IntSet params() {
+//		IntSet res;
+		IntSet lpars = left->params();
+		IntSet rpars = right->params();
+//		std::set_union( lpars.begin(), lpars.end(), rpars.begin(), rpars.end(), res.begin() );
+//		return res;
+		lpars.insert( rpars.begin(), rpars.end() );
+		return lpars;
+	}
+
 };
 
 class FunctionExpression : public Expression {
@@ -89,6 +100,10 @@ public:
 
 	double evaluate( Instance & ins, StringVec & par );
 
+	IntSet params() {
+		return IntSet( fun->params.begin(), fun->params.end() );
+	}
+
 };
 
 class ValueExpression : public Expression {
@@ -113,6 +128,10 @@ public:
 
 	double evaluate( Instance & ins, StringVec & par ) {
 		return value;
+	}
+
+	IntSet params() {
+		return IntSet;
 	}
 
 };
