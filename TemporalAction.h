@@ -131,7 +131,7 @@ public:
 	}
 
 	IntSet params() {
-		return IntSet;
+		return IntSet();
 	}
 
 };
