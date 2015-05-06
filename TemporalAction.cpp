@@ -13,7 +13,7 @@ void FunctionExpression::PDDLPrint( std::ostream & s, const TokenStruct< std::st
 	s << " )";
 }
 
-double FunctionExpression::evaluate( Instance & ins, StringVec & par ) {
+double FunctionExpression::evaluate( Instance & ins, const StringVec & par ) {
 	ParamCond * c = ins.d.funcs[ins.d.funcs.index( fun->name )];
 
 	IntVec v( c->params.size() );

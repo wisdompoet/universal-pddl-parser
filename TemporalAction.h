@@ -15,7 +15,7 @@ public:
 	virtual std::string info() = 0;
 	virtual void PDDLPrint( std::ostream & s, const TokenStruct< std::string > & ts, Domain & d ) = 0;
 	virtual double evaluate() = 0;
-	virtual double evaluate( Instance & ins, StringVec & par ) = 0;
+	virtual double evaluate( Instance & ins, const StringVec & par ) = 0;
 	virtual IntSet params() = 0;
 
 };
@@ -64,7 +64,7 @@ public:
 		return compute( left->evaluate(), right->evaluate() );
 	}
 
-	double evaluate( Instance & ins, StringVec & par ) {
+	double evaluate( Instance & ins, const StringVec & par ) {
 		return compute( left->evaluate( ins, par ), right->evaluate( ins, par ) );
 	}
 
@@ -99,7 +99,7 @@ public:
 
 	double evaluate() { return 1; }
 
-	double evaluate( Instance & ins, StringVec & par );
+	double evaluate( Instance & ins, const StringVec & par );
 
 	IntSet params() {
 		return IntSet( fun->params.begin(), fun->params.end() );
@@ -127,7 +127,7 @@ public:
 
 	double evaluate() { return value; }
 
-	double evaluate( Instance & ins, StringVec & par ) {
+	double evaluate( Instance & ins, const StringVec & par ) {
 		return value;
 	}
 
