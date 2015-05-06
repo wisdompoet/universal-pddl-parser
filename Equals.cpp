@@ -3,7 +3,7 @@
 
 void Equals::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< std::string > & ts, Domain & d ) {
 	tabindent( s, indent );
-	s << "( = ";
+	s << "( =";
 	for ( unsigned i = 0; i < params.size(); ++i )
 		s << " " << ts[params[i]];
 	s << " )";
