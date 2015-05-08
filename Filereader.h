@@ -151,7 +151,7 @@ public:
 			}
 			else out.insert( getToken() );
 		}
-		if ( k < out.size() ) out.types.insert( out.types.end(), out.size() - k, "OBJECT" );
+		if ( k < out.size() ) out.types.insert( out.types.end(), out.size() - k, check ? "OBJECT" : "" );
 		++c;
 
 		return out;

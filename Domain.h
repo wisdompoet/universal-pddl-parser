@@ -166,9 +166,18 @@ public:
 		// Parse the typed list
 		TokenStruct< std::string > ts = f.parseTypedList( false );
 
+		if ( ts.index( "OBJECT" ) >= 0 ) {
+			types[0]->name = "SUPERTYPE";
+			types.tokenMap.clear();
+			types.tokenMap["SUPERTYPE"] = 0;
+		}
+
 		// Relate subtypes and supertypes
-		for ( unsigned i = 0; i < ts.size(); ++i )
-			getType( ts.types[i] )->insertSubtype( getType( ts[i] ) );
+		for ( unsigned i = 0; i < ts.size(); ++i ) {
+			if ( ts.types[i].size() )
+				getType( ts.types[i] )->insertSubtype( getType( ts[i] ) );
+			else getType( ts[i] );
+		}
 
 		// By default, the supertype of a type is "OBJECT"
 		for ( unsigned i = 1; i < types.size(); ++i )
