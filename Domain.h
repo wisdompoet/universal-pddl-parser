@@ -25,8 +25,6 @@ inline unsigned uf( UnsignedVec & mf, unsigned n ) {
 	else return mf[n] = uf( mf, mf[n] );
 }
 
-// IDEA: MAKE SOME FUNCTIONS FOR CREATING PREDICATES, ACTIONS, ETC.
-
 class Domain {
 
 public:
