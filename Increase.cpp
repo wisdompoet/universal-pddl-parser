@@ -10,7 +10,7 @@ void Increase::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< 
 	tabindent( s, indent );
 	s << "( INCREASE ( TOTAL-COST ) ";
 	if ( ground ) ground->PDDLPrint( s, 0, ts, d );
-	else s << value;
+	else s << ( int )value;
 	s << " )\n";
 }
 
