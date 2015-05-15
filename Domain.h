@@ -167,6 +167,7 @@ public:
 		// Parse the typed list
 		TokenStruct< std::string > ts = f.parseTypedList( false );
 
+		// bit of a hack to avoid OBJECT being the supertype
 		if ( ts.index( "OBJECT" ) >= 0 ) {
 			types[0]->name = "SUPERTYPE";
 			types.tokenMap.clear();
