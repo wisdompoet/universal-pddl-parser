@@ -46,8 +46,6 @@ public:
 	PairVec edges;                      // edges of concurrency network
 	UnsignedVec mf;                     // merge-find for connected components
 
-//	PairSetVec predActions;             // actions with effect on predicate
-
 	Domain()
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
 		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
