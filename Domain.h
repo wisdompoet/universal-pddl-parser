@@ -12,6 +12,7 @@
 #include "Increase.h"
 #include "NetworkNode.h"
 #include "Not.h"
+#include "Oneof.h"
 #include "Or.h"
 #include "EitherType.h"
 #include "When.h"
@@ -34,7 +35,8 @@ public:
 
 	bool equality;                      // whether domain supports equality
 	bool strips, adl, condeffects;      // whether domain is STRIPS, ADL and/or has conditional effects
-	bool typed, cons, costs, temp;      // whether domain is typed, has constants, has costs and/or is temporal
+	bool typed, cons, costs;            // whether domain is typed, has constants, has costs
+	bool temp, nondet;                  // whether domain is temporal, is non-deterministic
 	bool multiagent, unfact, fact, net; // whether domain is multiagent and unfactored/factored/networked
 
 	TokenStruct< Type * > types;        // types
@@ -50,12 +52,12 @@ public:
 
 	Domain()
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
-		, typed( false ), cons( false ), costs( false ), temp( false )
+		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
 		, multiagent( false ), unfact( false ), fact( false ), net( false ) {}
 
 	Domain( const std::string & s )
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
-		, typed( false ), cons( false ), costs( false ), temp( false )
+		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
 		, multiagent( false ), unfact( false ), fact( false ), net( false ) {
 
 		// Type 0 is always "OBJECT", whether the domain is typed or not
@@ -118,6 +120,7 @@ public:
 			else if ( s == "ACTION-COSTS" ) costs = true;
 			else if ( s == "EQUALITY" ) equality = true;
 			else if ( s == "DURATIVE-ACTIONS" ) temp = true;
+			else if ( s == "NON-DETERMINISTIC" ) nondet = true;
 			else if ( s == "MULTI-AGENT" ) multiagent = true;
 			else if ( s == "UNFACTORED-PRIVACY" ) unfact = true;
 			else if ( s == "FACTORED-PRIVACY" ) fact = true;
@@ -492,6 +495,7 @@ public:
 		if ( condeffects ) stream << " :CONDITIONAL-EFFECTS";
 		if ( typed ) stream << " :TYPING";
 		if ( temp ) stream << " :DURATIVE-ACTIONS";
+		if ( nondet ) stream << " :NON-DETERMINISTIC";
 		if ( multiagent ) stream << " :MULTI-AGENT";
 		if ( unfact ) stream << " :UNFACTORED-PRIVACY";
 		if ( fact ) stream << " :FACTORED-PRIVACY";
