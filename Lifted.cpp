@@ -6,8 +6,8 @@ void Lifted::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< st
 	s << "( " << name;
 	for ( unsigned i = 0; i < params.size(); ++i ) {
 		if ( ts.size() ) s << ts[i];
-		else s << " ?" << d.types[params[i]]->name << i;
-		if ( d.typed ) s << " - " << d.types[params[i]]->getName();
+		else s << " ?" << d.types[params[i]]->getName() << i;
+		if ( d.typed ) s << " - " << d.types[params[i]]->name;
 	}
 	s << " )";
 }

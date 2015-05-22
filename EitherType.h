@@ -13,7 +13,10 @@ public:
 	}
 	
 	std::string getName() const {
-		return "( EITHER " + subtypes[0]->name + " " + subtypes[1]->name + " )";
+		std::string out = "EITHER";
+		for ( unsigned i = 0; i < subtypes.size(); ++i )
+			out += "_" + subtypes[i]->getName();
+		return out;
 	}
 
 	void PDDLPrint( std::ostream & s ) const {

@@ -134,8 +134,8 @@ public:
 		if ( i < 0 ) {
 			if ( s[0] == '(' ) {
 				i = types.insert( new EitherType( s ) );
-				for ( unsigned k = 1; s[k - 1] != ')'; ) {
-					unsigned e = MIN( s.find( ' ', k ), s.find( ')', k ) );
+				for ( unsigned k = 9; s[k] != ')'; ) {
+					unsigned e = s.find( ' ', k );
 					types[i]->subtypes.push_back( getType( s.substr( k, e - k ) ) );
 					k = e + 1;
 				}
@@ -149,7 +149,7 @@ public:
 	IntVec convertTypes( const StringVec & v ) {
 		IntVec out;
 		for ( unsigned i = 0; i < v.size(); ++i )
-			out.push_back( types.index( v[i] ) );
+			out.push_back( types.index( getType( v[i] )->name ) );
 		return out;
 	}
 

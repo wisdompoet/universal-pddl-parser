@@ -129,12 +129,12 @@ public:
 					assert( "(" );
 					assert( "EITHER" );
 
-					t = "(EITHER";
+					t = "( EITHER";
 					for ( ; getChar() != ')'; next() ) {
 						if ( check ) t += " " + getToken( ts );
 						else t += " " + getToken();
 					}
-					t += ")";
+					t += " )";
 					++c;
 				}
 				else if ( check ) t = getToken( ts );
