@@ -323,10 +323,15 @@ public:
 	TokenStruct< Type * > copyTypes() {
 		TokenStruct< Type * > out;
 		for ( unsigned i = 0; i < types.size(); ++i )
-			out.insert( new Type( types[i] ) );
+			out.insert( types[i]->copy() );
 
-		for ( unsigned i = 1; i < types.size(); ++i )
-			out[types.index( types[i]->supertype->name )]->insertSubtype( out[i] );
+		for ( unsigned i = 1; i < types.size(); ++i ) {
+			if ( types[i]->supertype )
+				out[out.index( types[i]->supertype->name )]->insertSubtype( out[i] );
+			else
+				out[i]->copySubtypes( types[i], out );
+		}
+
 		return out;
 	}
 
@@ -452,7 +457,7 @@ public:
 	StringVec typeList( ParamCond * c ) {
 		StringVec out;
 		for ( unsigned i = 0; i < c->params.size(); ++i )
-			out.push_back( types[c->params[i]]->getName() );
+			out.push_back( types[c->params[i]]->name );
 		return out;
 	}
 

@@ -11,7 +11,7 @@ void AgentAction::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruc
 	astruct.insert( ss.str() );
 
 	s << "  :AGENT " << astruct[0];
-	if ( d.typed ) s << " - " << d.types[params[0]]->getName();
+	if ( d.typed ) s << " - " << d.types[params[0]]->name;
 	s << "\n";
 
 	s << "  :PARAMETERS ";

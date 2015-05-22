@@ -40,6 +40,11 @@ public:
 		t->supertype = this;
 	}
 
+	void copySubtypes( Type * t, const TokenStruct< Type * > & ts ) {
+		for ( unsigned i = 0; i < t->subtypes.size(); ++i )
+			subtypes.push_back( ts.get( t->subtypes[i]->name ) );
+	}
+
 	void print( std::ostream & stream ) const {
 		stream << name;
 		if ( supertype ) stream << "[" << supertype->name << "]";
@@ -48,7 +53,7 @@ public:
 
 	virtual void PDDLPrint( std::ostream & s ) const {
 		s << "\t" << name;
-		if ( supertype ) s << " - " << supertype->getName();
+		if ( supertype ) s << " - " << supertype->name;
 		s << "\n";
 	}
 
@@ -109,6 +114,11 @@ public:
 			total += subtypes[i]->noObjects();
 		return total;
 	}
+
+	virtual Type * copy() {
+		return new Type( this );
+	}
+
 };
 
 inline std::ostream & operator<<( std::ostream & stream, const Type * t ) {

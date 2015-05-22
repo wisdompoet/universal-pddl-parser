@@ -8,7 +8,7 @@ void ParamCond::printParams( unsigned first, std::ostream & s, TokenStruct< std:
 		ss << "?" << d.types[params[i]]->getName() << ts.size();
 		ts.insert( ss.str() );
 		s << " " << ss.str();
-		if ( d.typed ) s << " - " << d.types[params[i]]->getName();
+		if ( d.typed ) s << " - " << d.types[params[i]]->name;
 	}
 	s << " )\n";
 }

@@ -3,7 +3,7 @@
 
 void Function::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< std::string > & ts, Domain & d ) {
 	Lifted::PDDLPrint( s, indent, ts, d );
-	if ( returnType >= 0 ) s << " - " << d.types[returnType]->getName();
+	if ( returnType >= 0 ) s << " - " << d.types[returnType]->name;
 }
 
 void Function::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) {

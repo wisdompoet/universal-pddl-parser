@@ -9,8 +9,10 @@ class EitherType : public Type {
 public:
 
 	EitherType( const std::string & s )
-		: Type( s ) {
-	}
+		: Type( s ) {}
+
+	EitherType( const EitherType * t )
+		: Type( t ) {}
 	
 	std::string getName() const {
 		std::string out = "EITHER";
@@ -20,6 +22,10 @@ public:
 	}
 
 	void PDDLPrint( std::ostream & s ) const {
+	}
+
+	Type * copy() {
+		return new EitherType( this );
 	}
 
 };
