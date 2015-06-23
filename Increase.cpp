@@ -11,7 +11,7 @@ void Increase::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< 
 	s << "( INCREASE ( TOTAL-COST ) ";
 	if ( ground ) ground->PDDLPrint( s, 0, ts, d );
 	else s << ( int )value;
-	s << " )\n";
+	s << " )";
 }
 
 void Increase::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) {

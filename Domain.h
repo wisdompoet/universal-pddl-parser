@@ -5,7 +5,9 @@
 #include "AgentAction.h"
 #include "TemporalAction.h"
 #include "And.h"
+#include "Derived.h"
 #include "Equals.h"
+#include "Exists.h"
 #include "Forall.h"
 #include "Function.h"
 #include "GroundFunc.h"
@@ -41,6 +43,7 @@ public:
 	TokenStruct< Lifted * > preds;      // predicates
 	TokenStruct< Function * > funcs;    // functions
 	TokenStruct< Action * > actions;    // actions
+	TokenStruct< Derived * > derived;   // derived predicates
 
 	TokenStruct< NetworkNode * > nodes; // nodes of concurrency network
 	PairVec edges;                      // edges of concurrency network
@@ -49,7 +52,9 @@ public:
 	Domain()
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
 		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
-		, multiagent( false ), unfact( false ), fact( false ), net( false ) {}
+		, multiagent( false ), unfact( false ), fact( false ), net( false ) {
+		types.insert( new Type( "OBJECT" ) );
+	}
 
 	Domain( const std::string & s )
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
@@ -71,6 +76,8 @@ public:
 			delete funcs[i];
 		for ( unsigned i = 0; i < actions.size(); ++i )
 			delete actions[i];
+		for ( unsigned i = 0; i < derived.size(); ++i )
+			delete derived[i];
 		for ( unsigned i = 0; i < nodes.size(); ++i )
 			delete nodes[i];
 	}
@@ -97,6 +104,7 @@ public:
 			else if ( t == "DURATIVE-ACTION" ) parseDurativeAction( f );
 			else if ( t == "CONCURRENCY-CONSTRAINT" ) parseNetworkNode( f );
 			else if ( t == "POSITIVE-DEPENDENCE" ) parseNetworkEdge( f );
+			else if ( t == "DERIVED" ) parseDerived( f );
 //			else if ( t == "AXIOM" ) parseAxiom( f );
 			else f.tokenExit( t );
 		}
@@ -274,6 +282,20 @@ public:
 		actions.insert( a );
 	}
 
+	void parseDerived( Filereader & f ) {
+		if ( !preds.size() ) {
+			std::cout << "Predicates needed before defining derived predicates\n";
+			exit(1);
+		}
+
+		f.next();
+		Derived * d = new Derived;
+		d->parse( f, types[0]->constants, *this );
+
+		if ( DOMAIN_DEBUG ) std::cout << d << "\n";
+		derived.insert( d );
+	}
+
 	void parseDurativeAction( Filereader & f ) {
 		if ( !preds.size() ) {
 			std::cout << "Predicates needed before defining actions\n";
@@ -337,6 +359,8 @@ public:
 
 	// Set the types to "otherTypes"
 	void setTypes( const TokenStruct< Type * > & otherTypes ) {
+		for ( unsigned i = 0; i < types.size(); ++i )
+			delete types[i];
 		types = otherTypes;
 	}
 
@@ -386,9 +410,9 @@ public:
 		And * old = dynamic_cast< And * >( cond );
 		if ( old == 0 ) {
 			action->pre = new And;
-			dynamic_cast< And * >( action->pre )->add( cond->copy( *this ) );
+			if ( cond ) dynamic_cast< And * >( action->pre )->add( cond->copy( *this ) );
 		}
-		else action->pre = cond->copy( *this );
+		else action->pre = old->copy( *this );
 	}
 
 	// Add a precondition to the action with name "act"
@@ -418,9 +442,9 @@ public:
 		And * old = dynamic_cast< And * >( cond );
 		if ( old == 0 ) {
 			action->eff = new And;
-			dynamic_cast< And * >( action->eff )->add( cond->copy( *this ) );
+			if ( cond ) dynamic_cast< And * >( action->eff )->add( cond->copy( *this ) );
 		}
-		else if ( cond ) action->eff = cond->copy( *this );
+		else action->eff = old->copy( *this );
 	}
 
 	// Add an effect to the action with name "act"
@@ -543,6 +567,9 @@ public:
 
 		for ( unsigned i = 0; i < actions.size(); ++i )
 			actions[i]->PDDLPrint( stream, 0, TokenStruct< std::string >(), *this );
+
+		for ( unsigned i = 0; i < derived.size(); ++i )
+			derived[i]->PDDLPrint( stream, 0, TokenStruct< std::string >(), *this );
 
 		for ( unsigned i = 0; i < nodes.size(); ++i )
 			nodes[i]->PDDLPrint( stream, 0, TokenStruct< std::string >(), *this );
