@@ -31,6 +31,10 @@ public:
 
 	void parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d );
 
+	void SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ){
+		
+	}
+
 	void add( Condition * cond ) {
 		conds.push_back( cond );
 	}

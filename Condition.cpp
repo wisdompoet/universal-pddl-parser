@@ -22,3 +22,18 @@ Condition * createCondition( Filereader & f, Domain & d ) {
 	return 0;
 }
 
+Condition * createSHOPCondition( Filereader & f, Domain & d ) {
+	std::string s = f.getToken();
+
+	if ( s == "AND" ) return new And;
+	if ( s == "FORALL" ) return new Forall;
+	if ( s == "NOT" ) return new Not;
+	if ( s == "OR" ) return new Or;
+	
+	return new Ground( s );
+	
+	f.tokenExit( s );
+
+	return 0;
+}
+

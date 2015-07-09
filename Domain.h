@@ -3,6 +3,9 @@
 #define _DOMAIN_H_
 
 #include "AgentAction.h"
+#include "Task.h"
+#include "HTNMethod.h"
+#include "HTNOperator.h"
 #include "TemporalAction.h"
 #include "And.h"
 #include "Derived.h"
@@ -37,13 +40,16 @@ public:
 	bool strips, adl, condeffects;      // whether domain is STRIPS, ADL and/or has conditional effects
 	bool typed, cons, costs;            // whether domain is typed, has constants, has costs
 	bool temp, nondet;                  // whether domain is temporal, is non-deterministic
-	bool multiagent, unfact, fact, net; // whether domain is multiagent and unfactored/factored/networked
+	bool multiagent, unfact, fact, net, shop; // whether domain is multiagent and unfactored/factored/networked, shop
 
 	TokenStruct< Type * > types;        // types
 	TokenStruct< Lifted * > preds;      // predicates
 	TokenStruct< Function * > funcs;    // functions
 	TokenStruct< Action * > actions;    // actions
+	TokenStruct< HTNMethod * > htnMtds;// shop methods
 	TokenStruct< Derived * > derived;   // derived predicates
+	TokenStruct< HTNOperator * > htnOps;// shop operators
+	TokenStruct< Task * > tasks;		// tasks
 
 	TokenStruct< NetworkNode * > nodes; // nodes of concurrency network
 	PairVec edges;                      // edges of concurrency network
@@ -52,19 +58,20 @@ public:
 	Domain()
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
 		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
-		, multiagent( false ), unfact( false ), fact( false ), net( false ) {
+		, multiagent( false ), unfact( false ), fact( false ), net( false ), shop( false ) {
 		types.insert( new Type( "OBJECT" ) );
 	}
 
-	Domain( const std::string & s )
+	Domain( const std::string & s, bool htn = false )
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
 		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
-		, multiagent( false ), unfact( false ), fact( false ), net( false ) {
+		, multiagent( false ), unfact( false ), fact( false ), net( false ), shop( htn ) {
 
 		// Type 0 is always "OBJECT", whether the domain is typed or not
 		types.insert( new Type( "OBJECT" ) );
 
-		parse( s );
+		if(shop) parseSHOP( s );
+		else     parse( s );
 	}
 
 	~Domain() {
@@ -80,6 +87,12 @@ public:
 			delete derived[i];
 		for ( unsigned i = 0; i < nodes.size(); ++i )
 			delete nodes[i];
+		for ( unsigned i = 0; i < tasks.size(); ++i )
+		 	delete tasks[i];
+		for ( unsigned i = 0; i < htnMtds.size(); ++i )
+			delete htnMtds[i];
+		for ( unsigned i = 0; i < htnOps.size(); ++i )
+			delete htnOps[i];
 	}
 
 	void parse( const std::string & s ) {
@@ -106,6 +119,26 @@ public:
 			else if ( t == "POSITIVE-DEPENDENCE" ) parseNetworkEdge( f );
 			else if ( t == "DERIVED" ) parseDerived( f );
 //			else if ( t == "AXIOM" ) parseAxiom( f );
+			else f.tokenExit( t );
+		}
+	}
+
+	void parseSHOP( const std::string & s ) {
+		Filereader f( s );
+
+	    name = f.parseHTNDomainName( );
+
+		if ( DOMAIN_DEBUG ) std::cout << name << "\n";
+
+		for ( ; f.getChar() != ')'; f.next() ) {
+			f.assert( "(" );
+			f.assert( ":" );
+			std::string t = f.getToken();
+
+			if ( DOMAIN_DEBUG ) std::cout << t << "\n";
+
+			if ( t == "OPERATOR" ) parseOperator( f );
+		    else if ( t == "METHOD" ) parseMethod( f );
 			else f.tokenExit( t );
 		}
 	}
@@ -338,6 +371,28 @@ public:
 
 		f.next();
 		f.assert( ")" );
+	}
+
+	void parseOperator( Filereader & f ) {
+		f.next();
+		f.assert( "(" );
+		HTNOperator * o = 0;
+		o = new HTNOperator( f.getToken() );
+		o->SHOPparse( f, types[0]->constants, *this );
+
+		if ( DOMAIN_DEBUG ) std::cout << o << "\n";
+		htnOps.insert( o );
+	}
+
+	void parseMethod( Filereader & f ) {
+		f.next();
+		f.assert( "(" );
+		HTNMethod * o = 0;
+		o = new HTNMethod( f.getToken() );
+		o->SHOPparse( f, types[0]->constants, *this );
+
+		if ( DOMAIN_DEBUG ) std::cout << o << "\n";
+		htnMtds.insert( o );
 	}
 
 	// Return a copy of the type structure, with newly allocated types
@@ -581,6 +636,21 @@ public:
 		}
 
 		stream << ")\n";
+	}
+
+	// Print the domain in SHOP format
+	void SHOPPrint( std::ostream & stream ) {
+		stream << "( DEFDOMAIN " << name << " (\n";		
+
+		 for ( unsigned i = 0; i < htnOps.size(); ++i ){
+		 		htnOps[i]->SHOPPrint( stream, 0, TokenStruct< std::string >(), *this );
+		 }
+
+		 for ( unsigned i = 0; i < htnMtds.size(); ++i )
+		 		htnMtds[i]->SHOPPrint( stream, 0, TokenStruct< std::string >(), *this );
+
+		stream << ")\n";
+
 	}
 
 };

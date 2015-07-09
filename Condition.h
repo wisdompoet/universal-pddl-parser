@@ -18,6 +18,8 @@ public:
 
 	virtual void parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) = 0;
 
+	virtual void SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) = 0;
+
 	virtual void addParams( int m, unsigned n ) = 0;
 
 	virtual Condition * copy( Domain & d ) = 0;
@@ -31,5 +33,7 @@ inline std::ostream & operator<<( std::ostream & stream, const Condition * c ) {
 typedef std::vector< Condition * > CondVec;
 
 Condition * createCondition( Filereader & f, Domain & d );
+
+Condition * createSHOPCondition( Filereader & f, Domain & d );
 
 #endif

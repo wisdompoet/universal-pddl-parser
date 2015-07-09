@@ -8,7 +8,8 @@ void Ground::PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< st
 	tabindent( s, indent );
 	s << "( " << name;
 	for ( unsigned i = 0; i < params.size(); ++i ) {
-		if ( ts.size() && params[i] >= 0 ) s << " " << ts[params[i]];
+		if ( ts.size() && params[i] >= 0 && (unsigned)params[i] < ts.size() ) s << " " << ts[params[i]];
+		else if (params[i] >= 0 && (unsigned)params[i] >= ts.size()) s << " ?" << params[i]; 
 		else s << " " << d.types[lifted->params[i]]->object( params[i] ).first;
 	}
 	s << " )";
@@ -28,4 +29,31 @@ void Ground::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d 
 		}
 	}
 	f.assert( ")" );
+}
+
+void Ground::SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) {
+	TokenStruct< std::string > lstruct = f.parseTypedList( false );
+
+	int i = d.preds.index( name );
+
+	if( i < 0 ){
+		Lifted * c = new Lifted( name );
+		i = d.preds.insert( c );
+		IntVec v( lstruct.size(), 0 );
+		c->params = v;
+	}
+	
+	this->lifted = d.preds[i];
+
+	params = d.convertTypes( lstruct.types );
+		
+	for ( unsigned i = 0; i < lstruct.size(); ++i ) {
+		std::string s = lstruct[i];
+		int k = ts.index( s );
+		if ( k >= 0 ) params[i] = k;
+		else  { 
+			params[i] = ts.insert(s); 
+		}
+	}
+
 }
