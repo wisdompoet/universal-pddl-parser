@@ -36,6 +36,10 @@ public:
 
 	void parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d );
 
+	void SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ){
+		
+	}
+
 	void addParams( int m, unsigned n ) {
 	}
 

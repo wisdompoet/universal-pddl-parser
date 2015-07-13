@@ -29,6 +29,10 @@ public:
 
 	void printParams( unsigned first, std::ostream & s, TokenStruct< std::string > & ts, Domain & d );
 
+	void SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ){
+		
+	}
+
 };
 
 typedef std::vector< ParamCond * > ParamCondVec;

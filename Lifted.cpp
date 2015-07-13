@@ -16,3 +16,8 @@ void Lifted::parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d 
 	TokenStruct< std::string > lstruct = f.parseTypedList( true, d.types );
 	params = d.convertTypes( lstruct.types );
 }
+
+void Lifted::SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ) {
+	TokenStruct< std::string > lstruct = f.parseTypedList( false );
+	params = d.convertTypes( lstruct.types );
+}

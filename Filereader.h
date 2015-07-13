@@ -114,6 +114,34 @@ public:
 		return out;
 	}
 
+	// parse htn name of a domain
+	std::string parseHTNDomainName() {
+		std::string out;
+		std::string t[3] = { "(", "DEFDOMAIN" , "(" };
+		for ( unsigned i = 0; i < 3; ++i ) {
+			assert( t[i] );
+			if ( i == 1 ) {
+				out = getToken();
+				next();
+			}
+		}
+		return out;
+	}
+
+	// parse htn name of a problem
+	std::string parseHTNProblemName() {
+		std::string out;
+		std::string t[4] = { "(", "DEFPROBLEM", "PROBLEM" , "(" };
+		for ( unsigned i = 0; i < 4; ++i ) {
+			assert( t[i] );
+			if ( i == 2 ) {
+				out = getToken();
+				next();
+			}
+		}
+		return out;
+	}
+	
 	// parse a typed list
 	// if check is true, checks that types exist
 	TokenStruct< std::string > parseTypedList( bool check, const TokenStruct< Type * > & ts = TokenStruct< Type * >(), const std::string & lt = "" ) {

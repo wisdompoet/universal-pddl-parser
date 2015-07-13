@@ -1,4 +1,5 @@
 
+
 #ifndef _WHEN_H_
 #define _WHEN_H_
 
@@ -33,6 +34,10 @@ public:
 	void PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< std::string > & ts, Domain & d );
 
 	void parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d );
+
+	void SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d ){
+		
+	}
 
 	void addParams( int m, unsigned n ) {
 		pars->addParams( m, n );

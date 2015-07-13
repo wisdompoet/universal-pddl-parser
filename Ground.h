@@ -25,6 +25,8 @@ public:
 
 	void parse( Filereader & f, TokenStruct< std::string > & ts, Domain & d );
 
+	void SHOPparse( Filereader & f, TokenStruct< std::string > & ts, Domain & d );
+
 	void addParams( int m, unsigned n ) {
 		for ( unsigned i = 0; i < params.size(); ++i )
 			if ( params[i] >= m ) params[i] += n;
