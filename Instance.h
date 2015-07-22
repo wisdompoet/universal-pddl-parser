@@ -8,7 +8,7 @@ class Instance {
 public:
 	Domain &d;
 	std::string name;
-	GroundVec init, goal; // initial and goal states
+	TypeGroundVec init, goal; // initial and goal states
 	TaskVec tgoal; //goal for shop instances
 	
 	bool metric, shop;
