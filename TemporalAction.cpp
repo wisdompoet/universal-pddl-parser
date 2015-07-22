@@ -86,7 +86,8 @@ void TemporalAction::PDDLPrint( std::ostream & s, unsigned indent, const TokenSt
 	printParams( 0, s, astruct, d );
 
 	s << "  :DURATION ( = ?DURATION ";
-	durationExpr->PDDLPrint( s, astruct, d );
+	if ( durationExpr ) durationExpr->PDDLPrint( s, astruct, d );
+	else s << "1";
 	s << " )\n";
 
 	s << "  :CONDITION\n";
