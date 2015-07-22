@@ -541,7 +541,7 @@ public:
 	}
 
 	// Return the list of object names corresponding to a ground fluent
-	StringVec objectList( TypeGround * g ) {
+	StringVec objectList( Ground * g ) {
 		StringVec out;
 		for ( unsigned i = 0; i < g->params.size(); ++i )
 			out.push_back( types[g->lifted->params[i]]->object( g->params[i] ).first );
