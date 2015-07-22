@@ -146,7 +146,7 @@ public:
 	And *pre_o, *pre_e, *eff_e;
 
 	TemporalAction( const std::string & s )
-		: Action( s ), pre_o( 0 ), pre_e( 0 ), eff_e( 0 ) {}
+		: Action( s ), durationExpr( 0 ), pre_o( 0 ), pre_e( 0 ), eff_e( 0 ) {}
 
 	~TemporalAction() {
 		if ( durationExpr ) delete durationExpr;
