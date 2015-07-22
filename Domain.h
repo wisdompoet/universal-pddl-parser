@@ -39,7 +39,7 @@ public:
 	bool equality;                      // whether domain supports equality
 	bool strips, adl, condeffects;      // whether domain is STRIPS, ADL and/or has conditional effects
 	bool typed, cons, costs;            // whether domain is typed, has constants, has costs
-	bool temp, nondet;                  // whether domain is temporal, is non-deterministic
+	bool temp, nondet, neg;             // whether domain is temporal, is non-deterministic, has negative precons
 	bool multiagent, unfact, fact, net, shop; // whether domain is multiagent and unfactored/factored/networked, shop
 
 	TokenStruct< Type * > types;        // types
@@ -57,14 +57,14 @@ public:
 
 	Domain()
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
-		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
+		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false ), neg( false )
 		, multiagent( false ), unfact( false ), fact( false ), net( false ), shop( false ) {
 		types.insert( new Type( "OBJECT" ) );
 	}
 
 	Domain( const std::string & s, bool htn = false )
 		: equality( false ), strips( false ), adl( false ), condeffects( false )
-		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false )
+		, typed( false ), cons( false ), costs( false ), temp( false ), nondet( false ), neg( false )
 		, multiagent( false ), unfact( false ), fact( false ), net( false ), shop( htn ) {
 
 		// Type 0 is always "OBJECT", whether the domain is typed or not
@@ -114,7 +114,7 @@ public:
 			else if ( t == "PREDICATES" ) parsePredicates( f );
 			else if ( t == "FUNCTIONS" ) parseFunctions( f );
 			else if ( t == "ACTION" ) parseAction( f );
-			else if ( t == "DURATIVE-ACTION" ) parseDurativeAction( f );
+			else if ( t == "DURATIVE-ACTION" ) parseDurativeAction( f );zz
 			else if ( t == "CONCURRENCY-CONSTRAINT" ) parseNetworkNode( f );
 			else if ( t == "POSITIVE-DEPENDENCE" ) parseNetworkEdge( f );
 			else if ( t == "DERIVED" ) parseDerived( f );
@@ -152,6 +152,7 @@ public:
 
 			if ( s == "STRIPS" ) strips = true;
 			else if ( s == "ADL" ) adl = true;
+			else if ( s == "NEGATIVE-PRECONDITIONS" ) neg = true;
 			else if ( s == "CONDITIONAL-EFFECTS" ) condeffects = true;
 			else if ( s == "TYPING" ) typed = true;
 			else if ( s == "ACTION-COSTS" ) costs = true;
@@ -573,6 +574,7 @@ public:
 		if ( strips ) stream << " :STRIPS";
 		if ( costs ) stream << " :ACTION-COSTS";
 		if ( adl ) stream << " :ADL";
+		if ( neg ) stream << " :NEGATIVE-PRECONDITIONS";
 		if ( condeffects ) stream << " :CONDITIONAL-EFFECTS";
 		if ( typed ) stream << " :TYPING";
 		if ( temp ) stream << " :DURATIVE-ACTIONS";
