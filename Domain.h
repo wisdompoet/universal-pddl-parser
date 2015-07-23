@@ -114,7 +114,7 @@ public:
 			else if ( t == "PREDICATES" ) parsePredicates( f );
 			else if ( t == "FUNCTIONS" ) parseFunctions( f );
 			else if ( t == "ACTION" ) parseAction( f );
-			else if ( t == "DURATIVE-ACTION" ) parseDurativeAction( f );zz
+			else if ( t == "DURATIVE-ACTION" ) parseDurativeAction( f );
 			else if ( t == "CONCURRENCY-CONSTRAINT" ) parseNetworkNode( f );
 			else if ( t == "POSITIVE-DEPENDENCE" ) parseNetworkEdge( f );
 			else if ( t == "DERIVED" ) parseDerived( f );
