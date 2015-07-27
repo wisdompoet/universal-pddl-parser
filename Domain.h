@@ -530,6 +530,11 @@ public:
 
 	// Create a ground condition with the given name
 	Ground * ground( const std::string & name, const IntVec & params = IntVec() ) {
+		if ( preds.index( name ) < 0 ) {
+			std::cout << "Creating a ground condition " << name << params;
+			std::cout << " failed since the predicate " << name << " does not exist!\n";
+			std::exit( 1 );
+		}
 		return new Ground( preds[preds.index( name )], params );
 	}
 
