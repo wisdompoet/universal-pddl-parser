@@ -455,6 +455,8 @@ public:
 		Action * action = new Action( name );
 		for ( unsigned i = 0; i < params.size(); ++i )
 			action->params.push_back( types.index( params[i] ) );
+		action->pre = new And;
+		action->eff = new And;
 		actions.insert( action );
 		return action;
 	}
