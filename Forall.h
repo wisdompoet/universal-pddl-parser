@@ -26,8 +26,8 @@ public:
 
 	void print( std::ostream & s ) const {
 		s << "Forall" << params << ":\n";
-		cond->print( s );
-		cond1->print( s );
+		if ( cond ) cond->print( s );
+		if ( cond1 ) cond1->print( s );
 	}
 
 	void PDDLPrint( std::ostream & s, unsigned indent, const TokenStruct< std::string > & ts, Domain & d );
