@@ -75,8 +75,12 @@ public:
 	void parseObjects( Filereader & f ) {
 		TokenStruct< std::string > ts = f.parseTypedList( true, d.types );
 
-		for ( unsigned i = 0; i < ts.size(); ++i )
-			d.getType( ts.types[i] )->objects.insert( ts[i] );
+		for ( unsigned i = 0; i < ts.size(); ++i ) {
+			Type * type = d.getType( ts.types[i] );
+			std::pair< bool, unsigned > pair = type->parseObject( ts[i] );
+			if ( pair.first == false )
+				type->objects.insert( ts[i] );
+		}
 
 		for ( unsigned i = 0; DOMAIN_DEBUG && i < d.types.size(); ++i ) {
 			std::cout << " ";
