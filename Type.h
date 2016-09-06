@@ -66,7 +66,7 @@ public:
 
 		for ( unsigned i = 0; i < subtypes.size(); ++i ) {
 			std::pair< bool, int > p = subtypes[i]->parseConstant( object );
-			if ( p.first ) return std::make_pair( true, k + p.second );
+			if ( p.first ) return std::make_pair( true, - k + p.second );
 			else k += p.second;
 		}
 
