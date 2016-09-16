@@ -1,163 +1,7 @@
 // To check for memory leaks:
-// valgrind --leak-check=yes examples/compileSHE ../temporal/compilingtemporal/domains/tempo-sat/Mapanalyser/domain/domain.pddl ../temporal/compilingtemporal/domains/tempo-sat/Mapanalyser/problems/pfile3-4-2-0-1.pddl
+// valgrind --leak-check=yes bin/compileSHE ../domains/tempo-sat/Mapanalyser/domain/domain.pddl ../domains/tempo-sat/Mapanalyser/problems/pfile3-4-2-0-1.pddl
 
-#include "Instance.h"
-
-Domain * d;
-Instance * ins;
-
-typedef std::vector< bool > BoolVec;
-typedef std::set< DoublePair > DoublePairSet;
-typedef std::map< double, unsigned > DurationMap;
-
-// Simplified graph just for TPSHE
-struct graph {
-	PairVec edges;
-
-	SetVec depths;
-	DoubleVec durations;
-
-	BoolVec mark;
-	DurationMap durationMap;
-	DoublePairSet subtractionPairs;
-
-	graph( unsigned n )
-		: depths( n ), durations( n ), mark( n, 0 ) {
-		for ( unsigned i = 0; i < n; ++i )
-			durations[i] = d->actions[i]->duration();
-	}
-
-	// add an edge to the graph
-	void add( int i, int j ) {
-		edges.push_back( std::make_pair( i, j ) );
-	}
-
-	// check if node is outgoing (i.e. is envelope)
-	bool outgoing( int node ) {
-		for ( unsigned i = 0; i < edges.size(); ++i )
-			if ( edges[i].first == node ) return true;
-		return false;
-	}
-
-	// compute the possible durations of contents of each envelope
-	void computeDurations() {
-		SetMap outgoing;
-		for ( unsigned i = 0; i < edges.size(); ++i )
-			outgoing[edges[i].first].insert( edges[i].second );
-
-		for ( SetMap::iterator i = outgoing.begin(); i != outgoing.end(); ++i ) {
-			double d = durations[i->first];
-
-			DoubleSet u;
-			for ( IntSet::const_iterator j = i->second.begin(); j != i->second.end(); ++j ) {
-				u.insert( durations[*j] );
-				durationMap[durations[*j]] = 0;
-			}
-
-			DoubleSet v;
-			v.insert( 0 );
-			for ( DoubleSet::iterator j = v.begin(); j != v.end(); ++j ) {
-				durationMap[d - *j] = 0;
-				for ( DoubleSet::iterator k = u.begin(); k != u.end(); ++k )
-					if ( *j + *k < d ) {
-						v.insert( *j + *k );
-						subtractionPairs.insert( std::make_pair( d - *j, *k ) );
-					}
-			}
-		}
-		
-		unsigned ct = 0;
-		for ( DurationMap::iterator j = durationMap.begin(); j != durationMap.end(); ++j )
-			j->second = ct++;
-	}
-
-	void computeDepths( unsigned n, const SetMap & m ) {
-		if ( mark[n] ) return;
-
-		mark[n] = true;
-		SetMap::const_iterator i = m.find( n );
-		if ( i == m.end() ) depths[n].insert( 0 );
-		else for ( IntSet::const_iterator j = i->second.begin(); j != i->second.end(); ++j ) {
-			computeDepths( *j, m );
-			for ( IntSet::const_iterator k = depths[*j].begin(); k != depths[*j].end(); ++k )
-				depths[n].insert( *k + 1 );
-		}
-	}
-
-	// compute the depths of each node (i.e. lengths of incoming directed paths)
-	void computeDepths() {
-		SetMap incoming;
-		for ( unsigned i = 0; i < edges.size(); ++i )
-			incoming[edges[i].second].insert( edges[i].first );
-
-		for ( unsigned i = 0; i < mark.size(); ++i )
-			computeDepths( i, incoming );
-	}
-
-};
-
-// just to simplify downcast
-TemporalAction * get( unsigned a ) {
-	return ( TemporalAction * )d->actions[a];
-}
-
-// assert that the types of two action conditions are compatible (each is subtype of the other)
-bool assertTypes( unsigned a, unsigned b, const Ground * g1, const Ground * g2 ) {
-	bool z = true;
-	for ( unsigned i = 0; i < g1->params.size(); ++i )
-		z |= d->assertSubtype( d->actions[a]->params[g1->params[i]], d->actions[b]->params[g2->params[i]] );
-	return z;
-}
-
-// check if aa contains a ground condition compatible with g
-bool includes( unsigned a, unsigned b, Ground * g, And * aa ) {
-	for ( unsigned i = 0; i < aa->conds.size(); ++i ) {
-		Ground * h = dynamic_cast< Ground * >( aa->conds[i] );
-		if ( h && g->name == h->name && assertTypes( a, b, g, h ) ) return 1;
-	}
-	return 0;
-}
-
-// check if aa contains a ground condition equal to g (possibly negated)
-bool includes( bool neg, Ground * g, And * aa ) {
-	for ( unsigned i = 0; i < aa->conds.size(); ++i ) {
-		Not * n = dynamic_cast< Not * >( aa->conds[i] );
-		Ground * h = dynamic_cast< Ground * >( aa->conds[i] );
-		if ( ( neg && n && g->name == n->cond->name && g->params == n->cond->params ) ||
-		     ( !neg && h && g->name == h->name && g->params == h->params ) )
-			return 1;
-	}
-	return 0;
-}
-
-// detect concurrency conditions on two actions
-// ASSUMES POSITIVE PRECONDITIONS OVER ALL
-void detectDependency( unsigned a, unsigned b, graph & g ) {
-	GroundVec gv = get( a )->addEffects();
-	for ( unsigned i = 0; i < gv.size(); ++i )
-		if ( includes( 1, gv[i], get( a )->eff_e ) &&
-		     includes( a, b, gv[i], get( b )->pre_o ) &&
-		     get( b )->duration() < get( a )->duration() )
-			g.add( a, b );
-}
-
-// check whether a context of an envelope (with predicate index k) is deleted by a content
-// CHANGE TO COMPUTE *NUMBER* OF OCCURRENCES !!!
-bool isPre( int a, int k, graph & g ) {
-	for ( unsigned i = 0; i < g.edges.size(); ++i )
-		if ( g.edges[i].first == a ) {
-			int b = g.edges[i].second;
-			GroundVec gv = get( b )->deleteEffects();
-			for ( unsigned j = 0; j < gv.size(); ++j )
-				if ( d->preds.index( gv[j]->name ) == k ) return 1;
-			for ( unsigned j = 0; j < get( b )->eff_e->conds.size(); ++j ) {
-				Not * n = dynamic_cast< Not * >( get( b )->eff_e->conds[j] );
-				if ( n && d->preds.index( n->cond->name ) == k ) return 1;
-			}
-			if ( isPre( b, k, g ) ) return 1;
-		}
-	return 0;
-}
+#include "compile.h"
 
 int main( int argc, char *argv[] ) {
 	if ( argc < 3 ) {
@@ -183,22 +27,26 @@ int main( int argc, char *argv[] ) {
 	// Identify contexts that are threatened by contents
 	// RIGHT NOW PRE & EFF ASSUME POSITIVE PRECONDITIONS !!!
 
-	IntSet pres;
 	int maxCount = 0;
 	for ( unsigned i = 0; i < d->actions.size(); ++i ) {
 		maxCount = MAX( maxCount, *g.depths[i].rbegin() );
 		for ( unsigned j = 0; j < get( i )->pre_o->conds.size(); ++j ) {
-			int k = d->preds.index( dynamic_cast< Ground * >( get( i )->pre_o->conds[j] )->name );
-			if ( isPre( i, k, g ) )
-				pres.insert( k );
+			Ground * pre = dynamic_cast< Ground * >( get( i )->pre_o->conds[j] );
+			if ( pre ) {
+				int k = d->preds.index( pre->name );
+				if ( k >= 0 && isPre( i, k, g ) )
+					pres.insert( k );
+			}
 		}
 	}
 
 	// Create classical domain
-	Domain * cd = new Domain;
+	cd = new Domain;
 	cd->name = d->name;
+	cd->equality = d->equality;
 	cd->condeffects = cd->typed = true;
 	cd->cons = d->cons || ( maxCount && pres.size() ) || g.subtractionPairs.size();
+	cd->equality = d->equality;
 
 	// Add types
 	cd->setTypes( d->copyTypes() );
@@ -257,9 +105,9 @@ int main( int argc, char *argv[] ) {
 	if ( times.size() )
 		cd->createPredicate( "SUBTRACT", StringVec( 3, "TIME" ) );
 
-	// Add functions
-	for ( unsigned i = 0; i < d->funcs.size(); ++i )
-		cd->createFunction( d->funcs[i]->name, d->funcs[i]->returnType, d->typeList( d->funcs[i] ) );
+	// Currently does NOT add functions
+//	for ( unsigned i = 0; i < d->funcs.size(); ++i )
+//		cd->createFunction( d->funcs[i]->name, d->funcs[i]->returnType, d->typeList( d->funcs[i] ) );
 
 	// Add actions
 	for ( unsigned i = 0; i < d->actions.size(); ++i )
@@ -271,15 +119,19 @@ int main( int argc, char *argv[] ) {
 				// Push action
 				std::string name = "PUSH-" + d->actions[i]->name;
 				unsigned size = d->actions[i]->params.size();
-				cd->createAction( name, d->typeList( d->actions[i] ) );
+				Action * push = cd->createAction( name, d->typeList( d->actions[i] ) );
+
+				//std::cout << "Creating action " << name << "\n";
 
 				// ONLY DEALS WITH POSITIVE PRECONDITIONS HERE !!!
 				cd->setPre( name, d->actions[i]->pre );
 				for ( unsigned k = 0; k < get( i )->pre_o->conds.size(); ++k ) {
-					Ground * h = ( Ground * )get( i )->pre_o->conds[k];
-					if ( !includes( 0, h, ( And * )get( i )->pre ) &&
-					     !includes( 0, h, ( And * )get( i )->eff ) )
-						cd->addPre( 0, name, h->name, h->params );
+					Ground * pre = dynamic_cast< Ground * >( get( i )->pre_o->conds[k] );
+					if ( pre && !includes( 0, pre, ( And * )get( i )->pre ) &&
+					            !includes( 0, pre, ( And * )get( i )->eff ) )
+						cd->addPre( 0, name, pre->name, pre->params );
+					// if precon is not positive, just copy it
+					if ( !pre ) ( ( And * )push->pre )->add( get( i )->pre_o->conds[k]->copy( *cd ) );
 				}
 				cd->addPre( 0, name, stacks[*j] );
 
@@ -294,11 +146,13 @@ int main( int argc, char *argv[] ) {
 				name = "POP-" + d->actions[i]->name;
 				cd->createAction( name, d->typeList( d->actions[i] ) );
 
+				//std::cout << "Creating action " << name << "\n";
+
 				// ONLY DEALS WITH POSITIVE PRECONDITIONS HERE !!!
 				cd->setPre( name, get( i )->pre_e );
 				for ( unsigned k = 0; k < get( i )->pre_o->conds.size(); ++k ) {
-					Ground * h = ( Ground * )get( i )->pre_o->conds[k];
-					if ( !includes( 0, h, get( i )->pre_e ) )
+					Ground * h = dynamic_cast< Ground * >( get( i )->pre_o->conds[k] );
+					if ( h && !includes( 0, h, get( i )->pre_e ) )
 						cd->addPre( 0, name, h->name, h->params );
 				}
 				cd->addPre( 0, name, stacks[*j + 1] );
@@ -312,15 +166,19 @@ int main( int argc, char *argv[] ) {
 			else {
 				// Action is not an envelope: compile into compressed action
 				std::string name = "DO-" + d->actions[i]->name;
-				cd->createAction( name, d->typeList( d->actions[i] ) );
+				Action * doit = cd->createAction( name, d->typeList( d->actions[i] ) );
+
+				//std::cout << "Creating action " << name << "\n";
 
 				// ONLY DEALS WITH POSITIVE PRECONDITIONS HERE !!!
 				cd->setPre( name, d->actions[i]->pre );
 				for ( unsigned k = 0; k < get( i )->pre_o->conds.size(); ++k ) {
-					Ground * h = ( Ground * )get( i )->pre_o->conds[k];
-					if ( !includes( 0, h, ( And * )get( i )->pre ) &&
-					     !includes( 0, h, ( And * )get( i )->eff ) )
-						cd->addPre( 0, name, h->name, h->params );
+					Ground * pre = dynamic_cast< Ground * >( get( i )->pre_o->conds[k] );
+					if ( pre && !includes( 0, pre, ( And * )get( i )->pre ) &&
+					            !includes( 0, pre, ( And * )get( i )->eff ) )
+						cd->addPre( 0, name, pre->name, pre->params );
+					// if precon is not positive, just copy it
+					if ( !pre ) ( ( And * )doit->pre )->add( get( i )->pre_o->conds[k]->copy( *cd ) );
 				}
 				for ( unsigned k = 0; k < get( i )->pre_e->conds.size(); ++k ) {
 					Ground * h = ( Ground * )get( i )->pre_e->conds[k];
@@ -394,12 +252,13 @@ int main( int argc, char *argv[] ) {
 
 	cd->PDDLPrint( std::cout );
 
-	Instance * cins = new Instance( *cd );
+	cins = new Instance( *cd );
 	cins->name = ins->name;
 
 	// create initial state
 	for ( unsigned i = 0; i < ins->init.size(); ++i )
-		cins->addInit( ins->init[i], d->objectList( ins->init[i] ) );
+		if ( d->preds.index( ins->init[i]->name ) >= 0 )
+			cins->addInit( ins->init[i]->name, d->objectList( ins->init[i] ) );
 	cins->addInit( stacks[0] );
 
 	for ( unsigned i = 1; i < counts.size(); ++i ) {

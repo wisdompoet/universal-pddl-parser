@@ -319,7 +319,8 @@ int main( int argc, char *argv[] ) {
 
 	// create initial state
 	for ( unsigned i = 0; i < ins->init.size(); ++i )
-		cins->addInit( ins->init[i], d->objectList( ins->init[i] ) );
+		if ( d->preds.index( ins->init[i]->name ) >= 0 )
+			cins->addInit( ins->init[i]->name, d->objectList( ins->init[i] ) );
 	cins->addInit( "AFREE" );
 	for ( unsigned i = 1; i <= nagents; ++i ) {
 		StringVec pars( 1, counts[i - 1] );
